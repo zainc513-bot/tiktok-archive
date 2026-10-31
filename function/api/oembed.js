@@ -2,53 +2,50 @@ export async function onRequestGet(context) {
   const reqUrl = new URL(context.request.url);
   const target = reqUrl.searchParams.get('url');
 
-  if (!target) {
-    return new Response(JSON.stringify({ error: 'missing url param' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
+  const json = (obj, status = 200, extra = {}) =>
+    new Response(JSON.stringify(obj), {
+      status,
+      headers: { 'Content-Type': 'application/json', ...extra }
     });
+
+  if (!target) {
+    return json({ error: 'missing url param' }, 400);
   }
 
-  // TikTok data exports often use tiktokv.com share links (mobile deep-link format),
-  // which the oEmbed service doesn't handle well. TikTok only actually needs the
-  // numeric video ID; the username segment can be a placeholder.
-  function normalizeForOembed(link) {
-    const m = link.match(/video\/(\d+)/);
-    if (m) return 'https://www.tiktok.com/@_/video/' + m[1];
-    return link;
-  }
-
-  const normalized = normalizeForOembed(target);
+  // TikTok only needs the numeric video ID; the username can be a placeholder.
+  const m = target.match(/video\/(\d+)/);
+  const normalized = m ? 'https://www.tiktok.com/@_/video/' + m[1] : target;
 
   try {
-    const upstream = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(normalized), {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TikTokArchiveTool/1.0)' }
-    });
+    const upstream = await fetch(
+      'https://www.tiktok.com/oembed?url=' + encodeURIComponent(normalized),
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+          'Accept': 'application/json',
+          'Accept-Language': 'en-US,en;q=0.9'
+        }
+      }
+    );
 
     if (!upstream.ok) {
-      // Pass through a real 404 so the client knows the video is actually
-      // gone (deleted/private) rather than treating it like a transient
-      // proxy hiccup worth retrying.
+      // A real 404 means the video is deleted/private, so the app can
+      // mark it "unavailable" instead of retrying.
       const status = upstream.status === 404 ? 404 : 502;
-      return new Response(JSON.stringify({ error: 'upstream error', status: upstream.status }), {
-        status: status,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return json({ error: 'upstream error', status: upstream.status }, status);
     }
 
-    const data = await upstream.json();
+    const text = await upstream.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      return json({ error: 'upstream returned non-JSON', preview: text.slice(0, 120) }, 502);
+    }
 
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=86400'
-      }
-    });
+    return json(data, 200, { 'Cache-Control': 'public, max-age=86400' });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'fetch failed', message: String(err) }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return json({ error: 'fetch failed', message: String(err) }, 500);
   }
 }
