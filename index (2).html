@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F7F5F0;
+    --panel: #FFFFFF;
+    --panel-2: #F1EEE6;
+    --line: #E3DED2;
+    --line-soft: #ECE8DE;
+    --ink: #211D16;
+    --ink-dim: #6B6455;
+    --ink-faint: #A39C8C;
+    --gold: #A8681F;
+    --gold-soft: #C98A3A;
+    --gold-dim: #E9D2AE;
+    --gold-bg: #FBF1E2;
+    --repost: #1C7A6C;
+    --repost-dim: #D7EFEA;
+    --favorite: #B23A55;
+    --favorite-dim: #FBE3E8;
+    --shadow: 0 1px 2px rgba(33,29,22,0.06), 0 4px 16px rgba(33,29,22,0.06);
+    --shadow-lift: 0 4px 10px rgba(33,29,22,0.08), 0 12px 28px rgba(33,29,22,0.10);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    -webkit-text-size-adjust:100%;
+    position:relative;
+  }
+  .aura-bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+  .aura-blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(70px);
+    opacity:0.55;
+    will-change:transform;
+  }
+  .aura-1{
+    width:52vw; height:52vw;
+    max-width:520px; max-height:520px;
+    top:-14%; left:-12%;
+    background:radial-gradient(circle, rgba(200,120,40,0.5), rgba(200,120,40,0) 70%);
+    animation:auraFloat1 26s ease-in-out infinite;
+  }
+  .aura-2{
+    width:46vw; height:46vw;
+    max-width:460px; max-height:460px;
+    top:32%; right:-16%;
+    background:radial-gradient(circle, rgba(168,104,31,0.45), rgba(168,104,31,0) 70%);
+    animation:auraFloat2 32s ease-in-out infinite;
+  }
+  .aura-3{
+    width:40vw; height:40vw;
+    max-width:400px; max-height:400px;
+    bottom:-10%; left:22%;
+    background:radial-gradient(circle, rgba(226,159,92,0.45), rgba(226,159,92,0) 70%);
+    animation:auraFloat3 22s ease-in-out infinite;
+  }
+  @keyframes auraFloat1{
+    0%, 100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(6vw, 8vh) scale(1.12); }
+  }
+  @keyframes auraFloat2{
+    0%, 100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(-7vw, -6vh) scale(0.9); }
+  }
+  @keyframes auraFloat3{
+    0%, 100%{ transform:translate(0,0) scale(1); }
+    50%{ transform:translate(5vw, -7vh) scale(1.08); }
+  }
+  #libraryView, .bottom-nav, .dev-overlay{ position:relative; z-index:1; }
+  @media (prefers-reduced-motion: reduce){
+    .aura-blob{ animation:none; }
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:32px 24px 88px;}
+  .masthead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--line);
+    padding-bottom:16px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:32px;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    font-size:11px;
+    color:var(--gold);
+    margin:0 0 4px;
+  }
+  .stats{
+    text-align:right;
+    color:var(--ink-dim);
+    font-size:12px;
+    line-height:1.6;
+  }
+  .stats b{color:var(--ink);font-weight:700;}
+  .masthead-right{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .icon-btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    width:40px;
+    height:40px;
+    min-height:40px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    padding:0;
+    flex-shrink:0;
+    transition:box-shadow .18s, border-color .18s, color .18s, transform .12s;
+  }
+  .icon-btn:hover{
+    border-color:var(--gold);
+    color:var(--gold);
+    box-shadow:0 0 0 4px rgba(168,104,31,0.12), 0 6px 16px rgba(168,104,31,0.2);
+    transform:translateY(-1px);
+  }
+  .dev-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:800;
+    background:rgba(33,29,22,0.4);
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .dev-overlay.open{display:flex;}
+  .dev-panel{
+    background:var(--panel);
+    width:100%;
+    max-width:640px;
+    max-height:82vh;
+    overflow-y:auto;
+    border-radius:20px 20px 0 0;
+    padding:20px 20px calc(28px + env(safe-area-inset-bottom, 0px));
+    box-shadow:var(--shadow-lift);
+  }
+  @media (min-width: 641px){
+    .dev-overlay{align-items:center;}
+    .dev-panel{border-radius:20px; max-height:80vh;}
+  }
+  .dev-panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:4px;
+  }
+  .dev-panel-head h2{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    font-weight:600;
+    margin:0;
+  }
+  .dev-panel-sub{
+    color:var(--ink-faint);
+    font-size:12px;
+    margin:4px 0 18px;
+  }
+  .dev-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .dev-row button{flex:1; min-width:150px;}
+  .dev-version{
+    margin-top:20px;
+    color:var(--ink-faint);
+    font-size:10px;
+    text-align:center;
+  }
+  .toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:8px;
+    align-items:center;
+  }
+  input[type=text], select{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Space Mono', monospace;
+    font-size:16px;
+    padding:9px 12px;
+    border-radius:10px;
+    min-height:44px;
+    -webkit-appearance:none;
+    appearance:none;
+    box-shadow:var(--shadow);
+  }
+  input[type=text]:focus, select:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  #search{flex:1;min-width:200px;}
+  #hashtag{width:160px;}
+  #creator{width:170px;}
+  button, .btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+    padding:9px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    min-height:44px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    -webkit-appearance:none;
+    appearance:none;
+    touch-action:manipulation;
+    box-shadow:var(--shadow);
+    transition:box-shadow .18s, border-color .18s, color .18s, transform .12s, background .18s;
+  }
+  button:hover, .btn:hover{
+    border-color:var(--gold);
+    color:var(--gold);
+    box-shadow:0 0 0 4px rgba(168,104,31,0.12), 0 6px 18px rgba(168,104,31,0.18);
+    transform:translateY(-1px);
+  }
+  button.primary, .btn.primary{background:var(--gold); border-color:var(--gold); color:#fff; font-weight:700;}
+  button.primary:hover, .btn.primary:hover{
+    background:var(--gold-soft); border-color:var(--gold-soft); color:#fff;
+    box-shadow:0 0 0 5px rgba(168,104,31,0.18), 0 8px 22px rgba(168,104,31,0.3);
+  }
+  button:active, .btn:active{background:var(--gold-bg); transform:translateY(0);}
+  .filter-row{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:12px 0 20px;
+    align-items:center;
+  }
+  .chip{
+    padding:6px 12px;
+    border:1px solid var(--line);
+    border-radius:20px;
+    font-size:11px;
+    cursor:pointer;
+    color:var(--ink-dim);
+    user-select:none;
+    transition:box-shadow .18s, border-color .18s, color .18s;
+  }
+  .chip:hover{
+    border-color:var(--gold-soft);
+    color:var(--gold);
+    box-shadow:0 0 0 3px rgba(168,104,31,0.10);
+  }
+  .chip.active{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+  .divider{width:1px;height:20px;background:var(--line);margin:0 4px;}
+  .empty{
+    border:1px dashed var(--line);
+    padding:48px 24px;
+    text-align:center;
+    color:var(--ink-faint);
+    margin-top:24px;
+  }
+  .empty p{margin:6px 0;}
+  .empty .big{font-family:'Fraunces',serif;font-size:18px;color:var(--ink-dim);}
+  #fileInput{display:none;}
+  .month{
+    margin-bottom:2px;
+    border-top:1px solid var(--line-soft);
+  }
+  .month-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 4px;
+    cursor:pointer;
+  }
+  .month-head:hover .month-title{color:var(--gold);}
+  .month-title{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .month-meta{
+    color:var(--ink-faint);
+    font-size:11px;
+  }
+  .month-body{display:none;padding:0 4px 16px;}
+  .month.open .month-body{display:block;}
+  .month.open .chev{transform:rotate(90deg);}
+  .chev{display:inline-block;margin-right:8px;color:var(--gold-soft);transition:transform .12s;font-size:11px;}
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(160px, 1fr));
+    gap:12px;
+    padding:4px 4px 16px;
+  }
+  .row{
+    display:grid;
+    grid-template-columns:78px 1fr auto;
+    gap:14px;
+    align-items:start;
+    padding:12px 10px;
+    border-bottom:1px solid var(--line-soft);
+    border-radius:10px;
+  }
+  .row:hover{background:var(--panel-2);}
+  .row:last-child{border-bottom:none;}
+  .row-date{color:var(--ink-faint);font-size:11px;padding-top:2px;}
+  .row-main{min-width:0;}
+  .row-caption{color:var(--ink);font-size:13px;line-height:1.5;word-break:break-word;}
+  .row-caption a{color:var(--ink);}
+  .row-tags{margin-top:4px;}
+  .row-tags .tag{color:var(--gold);font-size:12px;margin-right:8px;}
+  .row-link{color:var(--ink-faint);font-size:11px;margin-top:4px;word-break:break-all;}
+  .row-link a{color:var(--ink-faint);}
+  .row .badges{display:flex;gap:6px;flex-shrink:0;padding-top:2px;}
+  .row .badges .badge{
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    padding:3px 7px;
+    border-radius:6px;
+    white-space:nowrap;
+  }
+  .row .badges .badge.repost{background:var(--repost-dim);color:var(--repost);}
+  .row .badges .badge.favorite{background:var(--favorite-dim);color:var(--favorite);}
+  .card{
+    position:relative;
+    aspect-ratio:9/16;
+    background:var(--panel-2);
+    border:1px solid var(--line-soft);
+    border-radius:14px;
+    overflow:hidden;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition:transform .12s, box-shadow .18s, border-color .18s;
+  }
+  .card:hover{
+    border-color:var(--gold-soft);
+    box-shadow:0 0 0 3px rgba(168,104,31,0.10), var(--shadow-lift);
+  }
+  .card:active{transform:scale(0.98);}
+  .card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .card .placeholder{
+    position:absolute;inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    color:var(--ink-faint);
+    font-size:10px;
+    text-align:center;
+    padding:10px;
+    gap:8px;
+  }
+  .card .spinner{
+    width:18px;height:18px;
+    border:2px solid var(--line);
+    border-top-color:var(--gold);
+    border-radius:50%;
+    animation:spin 0.8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .card .play-icon{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:36px;height:36px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.55);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-size:14px;
+    pointer-events:none;
+  }
+  .card .overlay{
+    position:absolute;
+    left:0;right:0;bottom:0;
+    padding:20px 8px 8px;
+    background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0));
+    color:#fff;
+    font-size:10px;
+    line-height:1.35;
+  }
+  .card .overlay .cap{
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .card .card-badges{
+    position:absolute;
+    top:6px;left:6px;
+    display:flex;
+    gap:4px;
+    z-index:2;
+  }
+  .card .badge{
+    font-size:8px;
+    padding:2px 6px;
+    border-radius:2px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+  }
+  .card .badge.repost{background:rgba(38,71,63,0.9);color:var(--repost);}
+  .card .badge.favorite{background:rgba(74,40,48,0.9);color:var(--favorite);}
+  .card .open-link{
+    position:absolute;
+    top:6px;right:6px;
+    z-index:3;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.55);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-size:11px;
+    text-decoration:none;
+  }
+  .card.playing{aspect-ratio:auto;min-height:460px;}
+  .card.playing iframe, .card.playing blockquote{width:100%;}
+  .view-toggle{display:flex;gap:6px;}
+  .view-toggle .chip{cursor:pointer;}
+  .hashtag-cloud{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    align-items:baseline;
+  }
+  .hashtag-chip{
+    color:var(--gold);
+    cursor:pointer;
+    font-family:'Space Mono', monospace;
+    white-space:nowrap;
+  }
+  .hashtag-chip:hover{text-decoration:underline;}
+  .hashtag-count{
+    color:var(--ink-faint);
+    font-size:10px;
+    vertical-align:middle;
+  }
+  .show-more{
+    text-align:center;
+    padding:12px;
+  }
+  .show-more button{width:100%;}
+  .rail{
+    position:sticky;
+    top:0;
+  }
+  a{color:var(--gold);}
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);}
+
+  @media (max-width: 640px){
+    .wrap{padding:20px 14px 60px;}
+    h1{font-size:24px;}
+    .masthead{flex-direction:column;align-items:flex-start;}
+    .stats{text-align:left;}
+    .toolbar{flex-direction:column;align-items:stretch;}
+    #search, #hashtag, #creator, select, .btn, button{width:100%;}
+    .filter-row{justify-content:center;}
+    .row{grid-template-columns:1fr;gap:6px;}
+    .row-date{order:1;}
+    .badges{order:2;}
+    .row-main{order:3;}
+  }
+
+  /* ---- Bottom nav ---- */
+  .bottom-nav{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    z-index:600;
+    display:flex;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);
+    box-shadow:0 -2px 12px rgba(33,29,22,0.05);
+  }
+  .nav-btn{
+    flex:1;
+    background:transparent;
+    border:none;
+    color:var(--ink-faint);
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.03em;
+    padding:10px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+  }
+  .nav-btn svg{display:block;}
+  .nav-btn.active{color:var(--gold); font-weight:700;}
+
+  /* ---- Feed ---- */
+  #feedContainer{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:#000;
+    z-index:500;
+    overflow-y:scroll;
+    scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+  }
+  .feed-slide{
+    position:relative;
+    height:100vh;
+    height:100dvh;
+    width:100%;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    background:#050403;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .feed-media{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .feed-media img{
+    position:absolute;
+    inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    filter:blur(18px) brightness(0.5);
+    transform:scale(1.1);
+    z-index:1;
+  }
+  .feed-media .feed-thumb-sharp{
+    position:absolute;
+    max-height:100%;
+    max-width:100%;
+    filter:none;
+    transform:none;
+    object-fit:contain;
+  }
+  .feed-media iframe, .feed-media blockquote{
+    position:relative;
+    z-index:2;
+    max-width:100%;
+  }
+  .tiktok-embed-wrap{
+    position:relative;
+    z-index:2;
+    max-height:100%;
+    max-width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .feed-placeholder{
+    color:var(--ink-faint);
+    font-size:12px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .feed-tap-hint{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    z-index:3;
+    width:64px; height:64px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.5);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:22px;
+    cursor:pointer;
+  }
+  .feed-overlay{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    z-index:4;
+    padding:20px 16px calc(90px + env(safe-area-inset-bottom, 0px));
+    background:linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0) 70%);
+    color:#fff;
+    pointer-events:none;
+  }
+  .feed-badges{display:flex; gap:6px; margin-bottom:10px; pointer-events:auto;}
+  .feed-badges .badge{font-size:10px; padding:4px 9px; border-radius:3px; text-transform:uppercase; letter-spacing:0.05em;}
+  .feed-badges .badge.repost{background:rgba(38,71,63,0.9); color:var(--repost);}
+  .feed-badges .badge.favorite{background:rgba(74,40,48,0.9); color:var(--favorite);}
+  .feed-caption{font-size:14px; line-height:1.5; margin-bottom:10px; max-width:80%;}
+  .feed-open{
+    display:inline-block;
+    pointer-events:auto;
+    color:#fff;
+    font-size:12px;
+    text-decoration:none;
+    border:1px solid rgba(255,255,255,0.5);
+    background:rgba(0,0,0,0.35);
+    padding:6px 12px;
+    border-radius:20px;
+  }
+</style>
+
+</head>
+<body>
+<div class="aura-bg" aria-hidden="true">
+  <span class="aura-blob aura-1"></span>
+  <span class="aura-blob aura-2"></span>
+  <span class="aura-blob aura-3"></span>
+</div>
+
+<div id="libraryView" class="wrap">
+
+  <div class="masthead">
+    <div>
+      <p class="eyebrow">Personal archive</p>
+      <h1>Reposts &amp; favorites</h1>
+    </div>
+    <div class="masthead-right">
+      <div class="stats" id="stats">No data loaded yet.</div>
+      <button class="icon-btn" id="devModeBtn" onclick="openDevMode()" aria-label="Settings" title="Settings">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search captions, sounds, links...">
+    <input type="text" id="hashtag" placeholder="#hashtag">
+    <input type="text" id="creator" placeholder="@exact_username">
+    <select id="sortBy">
+      <option value="date">Sort by date favorited/reposted</option>
+      <option value="posted">Sort by date posted</option>
+    </select>
+    <select id="order">
+      <option value="asc">Oldest first</option>
+      <option value="desc" selected>Newest first</option>
+    </select>
+    <label class="btn primary" for="fileInput">Import JSON</label>
+    <input type="file" id="fileInput" accept="application/json,.json" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;">
+  </div>
+
+  <div id="importStatus" style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid var(--gold-soft);border-radius:10px;background:var(--gold-bg);color:var(--gold);font-size:12px;"></div>
+
+  <div class="filter-row">
+    <span class="chip active" data-filter="all">All</span>
+    <span class="chip" data-filter="repost">Reposts</span>
+    <span class="chip" data-filter="favorite">Favorites</span>
+    <span class="chip" data-filter="both">Both</span>
+    <div class="divider"></div>
+    <span class="view-toggle">
+      <span class="chip active" data-view="grid">Thumbnails</span>
+      <span class="chip" data-view="list">List</span>
+      <span class="chip" data-view="hashtags">Hashtags</span>
+    </span>
+    <div class="divider"></div>
+    <button onclick="expandAll()">Expand all</button>
+    <button onclick="collapseAll()">Collapse all</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<div id="devModeOverlay" class="dev-overlay" onclick="if(event.target===this) closeDevMode()">
+  <div class="dev-panel">
+    <div class="dev-panel-head">
+      <h2>Dev mode</h2>
+      <button class="icon-btn" onclick="closeDevMode()" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <p class="dev-panel-sub">Behind-the-scenes tools for testing and troubleshooting — not needed for everyday use.</p>
+
+    <div class="dev-row">
+      <button onclick="loadSample()">Load sample data</button>
+      <button onclick="testConnection()">Test thumbnail connection</button>
+    </div>
+    <div class="dev-row">
+      <button onclick="retryFailedThumbnails()">Retry failed (on screen)</button>
+      <button id="diagBtn" onclick="toggleDiagnostics()">Show live stats</button>
+    </div>
+
+    <div id="testStatus" style="display:none;margin-top:14px;padding:12px 14px;border:1px solid var(--gold-soft);border-radius:10px;background:var(--gold-bg);color:var(--gold);font-size:12px;word-break:break-word;"></div>
+    <div id="diagPanel" style="display:none;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);color:var(--ink-dim);font-size:11px;line-height:1.7;white-space:pre-wrap;"></div>
+
+    <p class="dev-version">beta v1.5 — search by exact @creator username</p>
+  </div>
+</div>
+
+<div id="feedContainer"></div>
+
+<div class="bottom-nav">
+  <button id="navLibrary" class="nav-btn active" onclick="switchToLibrary()">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+    Library
+  </button>
+  <button id="navFeed" class="nav-btn" onclick="switchToFeed()">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+    For You
+  </button>
+</div>
+
+<script>
+
+window.onerror = function(msg){
+  const el = document.getElementById('importStatus');
+  if(el){
+    el.style.display = 'block';
+    el.style.color = '#A6342E';
+    el.style.borderColor = '#EFC2BE';
+    el.style.background = '#FCEEEC';
+    el.textContent = 'Something went wrong: ' + msg;
+  }
+};
+
+let ALL = [];
+let currentFilter = 'all';
+let currentView = 'grid';
+const PAGE_SIZE = 150;
+const monthPage = {};
+
+// ---- Thumbnail loading (TikTok's official oEmbed service) ----
+const oembedCache = new Map(); // link -> {status, data}
+const fetchQueue = [];
+let activeFetches = 0;
+const MAX_CONCURRENT = 5;
+const FETCH_TIMEOUT_MS = 6000;
+
+// TikTok data exports often use tiktokv.com share links (mobile deep-link format),
+// which the oEmbed service doesn't handle well — it wants the canonical
+// tiktok.com/@username/video/{id} form. TikTok only actually needs the numeric ID;
+// the username segment can be a placeholder and it still resolves correctly.
+function normalizeForOembed(link){
+  const m = link.match(/video\/(\d+)/);
+  if(m){
+    return 'https://www.tiktok.com/@_/video/' + m[1];
+  }
+  return link;
+}
+
+// Each proxy wraps/returns the response differently, so each needs its own parser.
+// corsproxy.io was dropped — testing showed it 403s 100% of the time (blocked outright).
+const PROXIES = [
+  {
+    name: 'own-function',
+    build: (oembed, rawLink) => '/api/oembed?url=' + encodeURIComponent(rawLink),
+    parse: async (r) => r.json()
+  },
+  {
+    name: 'allorigins',
+    build: (oembed) => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(oembed),
+    parse: async (r) => r.json()
+  },
+  {
+    name: 'thingproxy',
+    build: (oembed) => 'https://thingproxy.freeboard.io/fetch/' + oembed,
+    parse: async (r) => r.json()
+  },
+  {
+    name: 'codetabs',
+    build: (oembed) => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(oembed),
+    parse: async (r) => r.json()
+  },
+  {
+    name: 'allorigins-get',
+    build: (oembed) => 'https://api.allorigins.win/get?url=' + encodeURIComponent(oembed),
+    parse: async (r) => { const wrapper = await r.json(); return JSON.parse(wrapper.contents); }
+  }
+];
+const PROXY_NAMES = PROXIES.map(p=>p.name);
+
+// Live diagnostics, built from real traffic (not just the one-off test button).
+const netStats = { success: 0, fail: 0, perProxy: {}, reasons: {} };
+PROXY_NAMES.forEach(name=>{ netStats.perProxy[name] = {ok:0, fail:0, rateLimited:0}; });
+function recordReason(key){
+  netStats.reasons[key] = (netStats.reasons[key] || 0) + 1;
+}
+
+// If a proxy starts returning 429 (rate limited), pause using it for a while
+// instead of continuing to hammer it and making the limit worse.
+const proxyCooldownUntil = {};
+PROXY_NAMES.forEach(name=>{ proxyCooldownUntil[name] = 0; });
+const COOLDOWN_MS = 20000;
+
+// Fire all (non-cooldown) proxies at once and take whichever answers first.
+async function tryOneProxy(p, oembed, link){
+  const controller = new AbortController();
+  const timer = setTimeout(()=>controller.abort(), 4000);
+  try{
+    const r = await fetch(p.build(oembed, link), {signal: controller.signal});
+    clearTimeout(timer);
+    if(r.status === 429){
+      proxyCooldownUntil[p.name] = Date.now() + COOLDOWN_MS;
+      netStats.perProxy[p.name].rateLimited++;
+      throw new Error('429');
+    }
+    if(r.status === 404){
+      // A clean 404 from our own function means TikTok itself said this video
+      // doesn't exist (deleted/private/removed) — not a proxy hiccup. No point
+      // retrying or racing other proxies for a video that's actually gone.
+      netStats.perProxy[p.name].fail++;
+      const err = new Error('video unavailable');
+      err.permanent = true;
+      throw err;
+    }
+    if(!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await p.parse(r);
+    if(!data || !data.thumbnail_url) throw new Error('no thumbnail');
+    netStats.perProxy[p.name].ok++;
+    return data;
+  }catch(e){
+    clearTimeout(timer);
+    if(e.message !== '429' && !e.permanent) netStats.perProxy[p.name].fail++;
+    throw e;
+  }
+}
+
+async function fetchOembedWithFallback(link){
+  const normalized = normalizeForOembed(link);
+  const oembed = 'https://www.tiktok.com/oembed?url=' + encodeURIComponent(normalized);
+  const now = Date.now();
+
+  // Our own function is reliable and cheap — try it alone first instead of
+  // racing 4 extra public proxies every single time. Big speed/bandwidth win
+  // once it's actually deployed (falls back below if it's unavailable).
+  const own = PROXIES.find(p=>p.name === 'own-function');
+  if(own && proxyCooldownUntil[own.name] <= now){
+    try{
+      return await tryOneProxy(own, oembed, link);
+    }catch(e){
+      if(e.permanent) throw e; // confirmed dead video — don't bother falling back
+      /* otherwise fall through to full fallback race below */
+    }
+  }
+
+  const usable = PROXIES.filter(p=>proxyCooldownUntil[p.name] <= now);
+  const list = usable.length ? usable : PROXIES; // if all cooling down, try anyway
+
+  const controllers = list.map(()=>new AbortController());
+
+  const attempts = list.map((p, idx)=>
+    fetch(p.build(oembed, link), {signal: controllers[idx].signal})
+      .then(async r=>{
+        if(r.status === 429){
+          proxyCooldownUntil[p.name] = Date.now() + COOLDOWN_MS;
+          netStats.perProxy[p.name].rateLimited++;
+          recordReason(p.name + ': rate limited (429)');
+          throw new Error('429');
+        }
+        if(!r.ok){ recordReason(p.name + ': HTTP ' + r.status); throw new Error('HTTP ' + r.status); }
+        return p.parse(r);
+      })
+      .then(data=>{
+        if(!data || !data.thumbnail_url){ recordReason(p.name + ': no thumbnail'); throw new Error('no thumbnail'); }
+        netStats.perProxy[p.name].ok++;
+        return data;
+      })
+      .catch(e=>{
+        if(e.message !== '429'){
+          netStats.perProxy[p.name].fail++;
+          if(e.message && e.message.indexOf('HTTP') !== 0 && e.message !== 'no thumbnail'){
+            recordReason(p.name + ': ' + (e.message || 'network error'));
+          }
+        }
+        throw e;
+      })
+  );
+
+  const timeoutPromise = new Promise((_, reject)=>setTimeout(()=>reject(new Error('timeout')), FETCH_TIMEOUT_MS));
+
+  try{
+    const result = await Promise.race([
+      (typeof Promise.any === 'function' ? Promise.any(attempts) : Promise.race(attempts)),
+      timeoutPromise
+    ]);
+    controllers.forEach(c=>c.abort());
+    return result;
+  }catch(e){
+    controllers.forEach(c=>c.abort());
+    throw e;
+  }
+}
+
+const AUTO_CASCADE_MAX_ITEMS = 850;
+function tryChainNextMonth(monthDiv){
+  const next = monthDiv.nextElementSibling;
+  if(!next || !next.classList || !next.classList.contains('month')) return;
+  if(!next.classList.contains('open')) return; // only cascade into months the person already opened
+  if((next._itemCount || Infinity) >= AUTO_CASCADE_MAX_ITEMS) return; // too big — don't auto-load it
+  if(next._build) next._build(); // no-op if it's already built/loading
+}
+
+function queueThumbnail(entry, cardEl, onSettled, monthDiv, priority){
+  if(!entry.link){ if(onSettled) onSettled(); return; }
+  const cached = oembedCache.get(entry.link);
+  if(cached){
+    applyThumbnail(cardEl, entry, cached);
+    if(onSettled) onSettled();
+    return;
+  }
+  const item = {entry, cardEl, onSettled, monthDiv};
+  if(priority) fetchQueue.unshift(item);
+  else fetchQueue.push(item);
+  processQueue();
+}
+
+// Called when a month is collapsed: pulls its not-yet-started items out of the
+// shared queue so a big collapsed month doesn't hold up whatever you open next.
+// They're kept aside and put back at the front of the line if you reopen it.
+function pauseMonth(monthDiv){
+  const kept = [];
+  const removed = [];
+  fetchQueue.forEach(item=>{
+    if(item.monthDiv === monthDiv) removed.push(item);
+    else kept.push(item);
+  });
+  fetchQueue.length = 0;
+  fetchQueue.push(...kept);
+  if(removed.length){
+    monthDiv._pausedItems = (monthDiv._pausedItems || []).concat(removed);
+  }
+}
+
+function resumeMonth(monthDiv){
+  if(monthDiv._pausedItems && monthDiv._pausedItems.length){
+    fetchQueue.unshift(...monthDiv._pausedItems);
+    monthDiv._pausedItems = [];
+    processQueue();
+  }
+}
+
+const AUTO_RETRY_ATTEMPTS = 2;
+const AUTO_RETRY_DELAY_MS = 1500;
+function delay(ms){ return new Promise(res=>setTimeout(res, ms)); }
+
+async function worker(){
+  while(fetchQueue.length){
+    const {entry, cardEl, onSettled} = fetchQueue.shift();
+    if(!document.body.contains(cardEl)){ if(onSettled) onSettled(); continue; } // scrolled away / re-rendered
+
+    let data = null;
+    let lastErr = null;
+    for(let attempt = 0; attempt <= AUTO_RETRY_ATTEMPTS; attempt++){
+      if(attempt > 0) await delay(AUTO_RETRY_DELAY_MS * attempt);
+      if(!document.body.contains(cardEl)) break; // scrolled away mid-retry
+      try{
+        data = await fetchOembedWithFallback(entry.link);
+        break;
+      }catch(e){
+        lastErr = e;
+        if(e.permanent) break; // confirmed dead video — quit here, don't burn more time on it
+      }
+    }
+
+    if(data){
+      oembedCache.set(entry.link, {status:'done', data});
+      netStats.success++;
+      // Real captions/hashtags often live in the oEmbed title even when the export lacks them.
+      if(data.title){
+        if(!entry.caption) entry.caption = data.title;
+        const tags = extractHashtags(data.title);
+        if(tags.length && entry.hashtags.length === 0) entry.hashtags = tags;
+      }
+      if(!entry.author){
+        entry.author = extractUsername(data.author_url) || (data.author_name ? data.author_name.toLowerCase().replace(/^@/,'') : null);
+      }
+      applyThumbnail(cardEl, entry, {status:'done', data});
+    } else {
+      const status = (lastErr && lastErr.permanent) ? 'unavailable' : 'error';
+      oembedCache.set(entry.link, {status});
+      netStats.fail++;
+      applyThumbnail(cardEl, entry, {status});
+    }
+    if(onSettled) onSettled();
+  }
+  activeFetches--;
+}
+
+function processQueue(){
+  while(activeFetches < MAX_CONCURRENT && fetchQueue.length){
+    activeFetches++;
+    worker();
+  }
+}
+
+function applyThumbnail(cardEl, entry, cached){
+  if(!document.body.contains(cardEl)) return;
+  const ph = cardEl.querySelector('.placeholder');
+  if(!ph) return;
+  if(cached.status === 'done' && cached.data.thumbnail_url){
+    cardEl.dataset.status = 'done';
+    const img = document.createElement('img');
+    img.src = cached.data.thumbnail_url;
+    img.loading = 'lazy';
+    img.alt = '';
+    ph.replaceWith(img);
+    const playIcon = document.createElement('div');
+    playIcon.className = 'play-icon';
+    playIcon.innerHTML = '&#9654;';
+    cardEl.appendChild(playIcon);
+  } else if(cached.status === 'unavailable'){
+    cardEl.dataset.status = 'unavailable';
+    ph.innerHTML = '<span>Video deleted or made private</span><span style="font-size:9px">Tap the &#8599; to check on TikTok</span>';
+  } else {
+    cardEl.dataset.status = 'error';
+    ph.innerHTML = '<span>Preview unavailable</span><span style="font-size:9px">Tap to retry, or tap the &#8599; to open on TikTok</span>';
+  }
+}
+
+function retryFailedThumbnails(){
+  const failedCards = document.querySelectorAll('.card[data-status="error"]');
+  if(failedCards.length === 0){
+    showStatus('No failed thumbnails currently on screen to retry. Scroll to the ones that failed first.', false);
+    return;
+  }
+  failedCards.forEach(cardEl=>{
+    const entry = cardEl._entry;
+    if(!entry) return;
+    oembedCache.delete(entry.link);
+    cardEl.dataset.status = 'pending';
+    const ph = cardEl.querySelector('.placeholder') || (()=>{ const d = document.createElement('div'); d.className='placeholder'; cardEl.prepend(d); return d; })();
+    ph.innerHTML = '<div class="spinner"></div>';
+    const existingImg = cardEl.querySelector('img');
+    if(existingImg) existingImg.remove();
+    const existingPlay = cardEl.querySelector('.play-icon');
+    if(existingPlay) existingPlay.remove();
+    queueThumbnail(entry, cardEl);
+  });
+  showStatus('Retrying ' + failedCards.length.toLocaleString() + ' failed thumbnail(s) currently on screen...', false);
+}
+
+let thumbObserver = null;
+function getThumbObserver(){
+  if(thumbObserver) return thumbObserver;
+  thumbObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(obs=>{
+      if(obs.isIntersecting){
+        const cardEl = obs.target;
+        const entry = cardEl._entry;
+        thumbObserver.unobserve(cardEl);
+        queueThumbnail(entry, cardEl);
+      }
+    });
+  }, {rootMargin: '300px'});
+  return thumbObserver;
+}
+
+function playInline(cardEl, entry){
+  const cached = oembedCache.get(entry.link);
+  if(!cached || cached.status !== 'done' || !cached.data.html){
+    if(entry.link) window.open(entry.link, '_blank', 'noopener');
+    return;
+  }
+  cardEl.classList.add('playing');
+  cardEl.innerHTML = cached.data.html;
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.tiktok.com/embed.js';
+  document.body.appendChild(s);
+}
+
+function monthKey(d){
+  if(!d) return 'Undated';
+  const dt = new Date(d);
+  if(isNaN(dt)) return 'Undated';
+  return dt.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
+function monthSortVal(d){
+  if(!d) return -Infinity;
+  const dt = new Date(d);
+  return isNaN(dt) ? -Infinity : dt.getTime();
+}
+
+function extractHashtags(text){
+  if(!text) return [];
+  const m = text.match(/#[\w]+/g);
+  return m ? [...new Set(m.map(t=>t.toLowerCase()))] : [];
+}
+
+// Pulls @username out of a TikTok URL like tiktok.com/@name/video/123
+// or tiktok.com/@name. Returns lowercase, no @, or null if not present
+// (e.g. tiktokv.com share links only contain a numeric ID, no username).
+function extractUsername(url){
+  if(!url) return null;
+  const m = url.match(/@([\w.\-]+)/);
+  return m ? m[1].toLowerCase() : null;
+}
+
+// Sections we actually care about. "watch history", "login history", "searches",
+// "following", etc. are deliberately excluded so they don't clutter results.
+const WANTED_PATTERNS = ['repost', 'favorite video', 'favorite videos', 'like list', 'itemfavoritelist'];
+const EXCLUDE_PATTERNS = ['login', 'search', 'watch history', 'following', 'follower', 'screentime', 'familypairing', 'block'];
+
+function findCandidateArrays(node, path, out, strict){
+  if(Array.isArray(node)){
+    if(node.length && typeof node[0] === 'object' && node[0] !== null){
+      const lowerPath = path.toLowerCase();
+      if(EXCLUDE_PATTERNS.some(p=>lowerPath.includes(p))){
+        return;
+      }
+      const keys = Object.keys(node[0]).map(k=>k.toLowerCase());
+      const hasDate = keys.some(k=>k.includes('date')||k.includes('time'));
+      const hasLink = keys.some(k=>k.includes('link')||k.includes('url'));
+      const isWanted = WANTED_PATTERNS.some(p=>lowerPath.includes(p));
+
+      if(strict){
+        if(isWanted && (hasDate || hasLink)){
+          out.push({path: lowerPath, items: node});
+        }
+      } else {
+        if(hasDate || hasLink){
+          out.push({path: lowerPath, items: node});
+        }
+      }
+    }
+    return;
+  }
+  if(node && typeof node === 'object'){
+    for(const k in node){
+      findCandidateArrays(node[k], path + '.' + k, out, strict);
+    }
+  }
+}
+
+// Case-insensitive field lookup: returns the first matching value from a list of candidate field names.
+function getField(item, names){
+  const lowerMap = {};
+  for(const k in item){
+    lowerMap[k.toLowerCase()] = item[k];
+  }
+  for(const name of names){
+    const v = lowerMap[name.toLowerCase()];
+    if(v !== undefined && v !== null && v !== '') return v;
+  }
+  return null;
+}
+
+// Safari's Date parser is stricter than Chrome's and chokes on "YYYY-MM-DD HH:mm:ss"
+// (no "T" separator). This normalizes it before parsing.
+function parseDateSafe(d){
+  if(!d) return null;
+  if(typeof d !== 'string') return d;
+  let s = d.trim();
+  if(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)){
+    s = s.replace(' ', 'T');
+  }
+  const dt = new Date(s);
+  return isNaN(dt) ? d : s; // return the (possibly fixed) string; callers re-parse with new Date()
+}
+
+function processOneItem(item, type, map){
+  const link = getField(item, ['Link','URL','VideoID','video_id','id']);
+  const date = parseDateSafe(getField(item, ['Date','CreateTime','create_time','favorited_date','repost_date']));
+  const postedDate = parseDateSafe(getField(item, ['PostedDate','posted_date','video_create_time']));
+  const caption = getField(item, ['Description','caption','Caption','Title','SearchTerm']) || '';
+  const sound = getField(item, ['Sound','music']);
+  const explicitType = item.type;
+
+  const key = link || (caption + '|' + date) || JSON.stringify(item);
+  const hashtags = extractHashtags(caption);
+
+  if(!map.has(key)){
+    map.set(key, {
+      id: key,
+      link: link || null,
+      date: date || null,
+      postedDate: postedDate || null,
+      caption: caption || '',
+      hashtags,
+      sound,
+      author: extractUsername(link),
+      types: new Set()
+    });
+  }
+  const entry = map.get(key);
+  if(explicitType === 'both'){
+    entry.types.add('repost'); entry.types.add('favorite');
+  } else if(explicitType){
+    entry.types.add(explicitType);
+  } else {
+    entry.types.add(type);
+  }
+  if(!entry.date && date) entry.date = date;
+  if(!entry.postedDate && postedDate) entry.postedDate = postedDate;
+  if(!entry.caption && caption) entry.caption = caption;
+  if(entry.hashtags.length === 0 && hashtags.length) entry.hashtags = hashtags;
+}
+
+function yieldToBrowser(){
+  return new Promise(resolve=>setTimeout(resolve, 0));
+}
+
+const NORMALIZE_CHUNK_SIZE = 1500;
+
+// Processes items in small batches with a breathing-room pause between each,
+// instead of one giant synchronous loop — large imports (tens of thousands of
+// items) could otherwise block the main thread long enough that iOS Safari
+// decides the page is unresponsive and force-reloads it.
+async function normalizeAsync(raw, onProgress){
+  let arrays = [];
+  if(Array.isArray(raw) && raw.every(x=>x && x.type)){
+    arrays.push({path:'flat', items: raw});
+  } else {
+    findCandidateArrays(raw, '', arrays, true);
+    if(arrays.length === 0){
+      findCandidateArrays(raw, '', arrays, false);
+    }
+  }
+
+  const map = new Map();
+  const totalItems = arrays.reduce((sum, a)=>sum + a.items.length, 0);
+  let processed = 0;
+
+  for(const {path, items} of arrays){
+    let type = 'other';
+    if(path.includes('repost')) type = 'repost';
+    else if(path.includes('favorite') || path.includes('like')) type = 'favorite';
+
+    for(let i = 0; i < items.length; i++){
+      processOneItem(items[i], type, map);
+      processed++;
+      if(processed % NORMALIZE_CHUNK_SIZE === 0){
+        if(onProgress) onProgress(processed, totalItems);
+        await yieldToBrowser();
+      }
+    }
+  }
+  if(onProgress) onProgress(processed, totalItems);
+
+  return [...map.values()].map(e=>({...e, types: [...e.types]}));
+}
+
+async function loadData(raw){
+  showStatus('Processing your data...', false);
+  await yieldToBrowser(); // let the "Processing..." message actually paint first
+  ALL = await normalizeAsync(raw, (done, total)=>{
+    if(total > 3000){
+      showStatus('Processing your data... ' + done.toLocaleString() + ' / ' + total.toLocaleString(), false);
+    }
+  });
+  document.getElementById('search').value = '';
+  document.getElementById('hashtag').value = '';
+  render();
+}
+
+function openDevMode(){
+  document.getElementById('devModeOverlay').classList.add('open');
+}
+function closeDevMode(){
+  document.getElementById('devModeOverlay').classList.remove('open');
+}
+
+let diagInterval = null;
+function toggleDiagnostics(){
+  const panel = document.getElementById('diagPanel');
+  const btn = document.getElementById('diagBtn');
+  const isOpen = panel.style.display !== 'none';
+  if(isOpen){
+    panel.style.display = 'none';
+    if(btn) btn.textContent = 'Show live stats';
+    if(diagInterval) clearInterval(diagInterval);
+    diagInterval = null;
+  } else {
+    panel.style.display = 'block';
+    if(btn) btn.textContent = 'Hide live stats';
+    renderDiagnostics();
+    diagInterval = setInterval(renderDiagnostics, 1500);
+  }
+}
+
+function renderDiagnostics(){
+  const panel = document.getElementById('diagPanel');
+  if(!panel || panel.style.display === 'none') return;
+  const now = Date.now();
+  const lines = [];
+  lines.push('Overall: ' + netStats.success.toLocaleString() + ' succeeded, ' + netStats.fail.toLocaleString() + ' failed (this session)');
+  lines.push('In-flight requests: ' + activeFetches + ' / ' + MAX_CONCURRENT + ' slots, ' + fetchQueue.length.toLocaleString() + ' queued');
+  lines.push('');
+  lines.push('Per proxy:');
+  PROXY_NAMES.forEach(name=>{
+    const s = netStats.perProxy[name];
+    const cooldown = proxyCooldownUntil[name] > now ? ' [COOLING DOWN ' + Math.ceil((proxyCooldownUntil[name]-now)/1000) + 's]' : '';
+    lines.push('  ' + name + ': ' + s.ok + ' ok / ' + s.fail + ' fail / ' + s.rateLimited + ' rate-limited' + cooldown);
+  });
+  const reasonEntries = Object.entries(netStats.reasons).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(reasonEntries.length){
+    lines.push('');
+    lines.push('Top failure reasons:');
+    reasonEntries.forEach(([k,v])=>lines.push('  ' + k + ': ' + v));
+  }
+  panel.textContent = lines.join('\n');
+}
+
+function showTestStatus(msg, isError){
+  const el = document.getElementById('testStatus');
+  el.style.display = 'block';
+  el.style.color = isError ? '#A6342E' : 'var(--gold)';
+  el.style.borderColor = isError ? '#EFC2BE' : 'var(--gold-soft)';
+  el.style.background = isError ? '#FCEEEC' : 'var(--gold-bg)';
+  el.textContent = msg;
+}
+
+async function testConnection(){
+  // If real data is loaded, test against one of the user's actual links —
+  // more useful than a generic public video, since TikTok may treat them differently.
+  const realEntry = ALL.find(e=>e.link);
+  const testUrl = realEntry ? realEntry.link : 'https://www.tiktok.com/@scout2015/video/6718335390845095173';
+  const usingRealLink = !!realEntry;
+
+  showTestStatus('Testing proxies against ' + (usingRealLink ? 'one of your real videos' : 'a known public test video') + '...', false);
+  const normalized = normalizeForOembed(testUrl);
+  const oembed = 'https://www.tiktok.com/oembed?url=' + encodeURIComponent(normalized);
+  const results = [];
+
+  for(const p of PROXIES){
+    const controller = new AbortController();
+    const timer = setTimeout(()=>controller.abort(), FETCH_TIMEOUT_MS);
+    try{
+      const r = await fetch(p.build(oembed, testUrl), {signal: controller.signal});
+      clearTimeout(timer);
+      if(!r.ok){ results.push(p.name + ': HTTP ' + r.status); continue; }
+      const data = await p.parse(r);
+      if(data && data.thumbnail_url){
+        results.push(p.name + ': OK');
+      } else {
+        results.push(p.name + ': responded but no thumbnail_url (raw: ' + JSON.stringify(data).slice(0,120) + ')');
+      }
+    }catch(e){
+      clearTimeout(timer);
+      results.push(p.name + ': ' + (e.name === 'AbortError' ? 'timed out' : e.message));
+    }
+  }
+
+  const anyOk = results.some(r=>r.includes(': OK'));
+  showTestStatus('Tested with: ' + testUrl.slice(0,60) + (anyOk ? ' — SUCCESS. ' : ' — ALL FAILED. ') + results.join(' | '), !anyOk);
+}
+
+async function loadSample(){
+  const sample = {
+    Activity: {
+      "Favorite Videos": {
+        FavoriteVideoList: [
+          {Date:"2021-03-14 10:22:00", Link:"https://www.tiktok.com/@chef.mira/video/7001", Description:"5 minute pasta hack #cooking #pasta #easyrecipe"},
+          {Date:"2022-07-02 18:05:00", Link:"https://www.tiktok.com/@lo.fi.beats/video/7002", Description:"study playlist part 3 #lofi #studywithme"},
+          {Date:"2023-01-19 09:41:00", Link:"https://www.tiktok.com/@ceramicsbyjune/video/7003", Description:"wheel throwing a mug #pottery #ceramics #handmade"},
+          {Date:"2024-11-08 21:10:00", Link:"https://www.tiktok.com/@runwithme/video/7004", Description:"marathon training week 4 #running #marathon"}
+        ]
+      },
+      Repost: {
+        RepostVideoList: [
+          {Date:"2022-07-02 18:06:00", Link:"https://www.tiktok.com/@lo.fi.beats/video/7002", Description:"study playlist part 3 #lofi #studywithme"},
+          {Date:"2023-05-30 14:12:00", Link:"https://www.tiktok.com/@travelwithsam/video/7005", Description:"hidden waterfall in Bali #travel #bali #waterfall"},
+          {Date:"2024-11-09 08:00:00", Link:"https://www.tiktok.com/@runwithme/video/7004", Description:"marathon training week 4 #running #marathon"},
+          {Date:"2025-02-14 12:30:00", Link:"https://www.tiktok.com/@petsoftiktok/video/7006", Description:"cat refuses to leave the box #cats #funny"}
+        ]
+      }
+    }
+  };
+  await loadData(sample);
+}
+
+function showStatus(msg, isError){
+  const el = document.getElementById('importStatus');
+  el.style.display = 'block';
+  el.style.color = isError ? '#A6342E' : 'var(--gold)';
+  el.style.borderColor = isError ? '#EFC2BE' : 'var(--gold-soft)';
+  el.style.background = isError ? '#FCEEEC' : 'var(--gold-bg)';
+  el.textContent = msg;
+}
+
+document.getElementById('fileInput').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file){
+    showStatus('No file was selected.', true);
+    return;
+  }
+  showStatus('Reading ' + file.name + ' ...', false);
+  const reader = new FileReader();
+  reader.onload = async ev=>{
+    try{
+      const json = JSON.parse(ev.target.result);
+      await loadData(json);
+      if(ALL.length === 0){
+        showStatus('The file loaded, but no reposts, favorites, or likes were found in it. Make sure you requested those sections in your TikTok data export.', true);
+      } else {
+        const repostCount = ALL.filter(x=>x.types.includes('repost')).length;
+        const favCount = ALL.filter(x=>x.types.includes('favorite')).length;
+        showStatus('Imported ' + ALL.length.toLocaleString() + ' videos (' + repostCount.toLocaleString() + ' reposts, ' + favCount.toLocaleString() + ' favorites). Scroll down — tap a month to expand it.', false);
+      }
+    }catch(err){
+      showStatus('Could not parse that file as JSON: ' + err.message, true);
+    }
+  };
+  reader.onerror = ()=>{
+    showStatus('The browser could not read that file. Try selecting it again.', true);
+  };
+  reader.readAsText(file);
+});
+
+document.querySelectorAll('.chip[data-filter]').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip[data-filter]').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilter = chip.dataset.filter;
+    render();
+  });
+});
+document.querySelectorAll('.chip[data-view]').forEach(chip=>{
+  chip.addEventListener('click', ()=>{
+    document.querySelectorAll('.chip[data-view]').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    currentView = chip.dataset.view;
+    render();
+  });
+});
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('hashtag').addEventListener('input', render);
+document.getElementById('creator').addEventListener('input', render);
+document.getElementById('sortBy').addEventListener('change', render);
+document.getElementById('order').addEventListener('change', render);
+
+function matches(entry){
+  if(currentFilter === 'repost' && !entry.types.includes('repost')) return false;
+  if(currentFilter === 'favorite' && !entry.types.includes('favorite')) return false;
+  if(currentFilter === 'both' && !(entry.types.includes('repost') && entry.types.includes('favorite'))) return false;
+
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  if(q){
+    const hay = (entry.caption + ' ' + (entry.sound||'') + ' ' + (entry.link||'')).toLowerCase();
+    if(!hay.includes(q)) return false;
+  }
+  const h = document.getElementById('hashtag').value.trim().toLowerCase().replace(/^#/, '');
+  if(h){
+    if(!entry.hashtags.some(t=>t.replace('#','').includes(h))) return false;
+  }
+  const c = document.getElementById('creator').value.trim().toLowerCase().replace(/^@/, '');
+  if(c){
+    if(!entry.author || entry.author !== c) return false;
+  }
+  return true;
+}
+
+function matchesTypeOnly(entry){
+  if(currentFilter === 'repost' && !entry.types.includes('repost')) return false;
+  if(currentFilter === 'favorite' && !entry.types.includes('favorite')) return false;
+  if(currentFilter === 'both' && !(entry.types.includes('repost') && entry.types.includes('favorite'))) return false;
+  return true;
+}
+
+// Generic/reaction/platform hashtags that show up on almost everything and
+// don't represent a fandom or specific interest — excluded from grouping.
+// This is a heuristic list, not a real classifier, so it won't be perfect.
+const GENERIC_HASHTAGS = new Set([
+  'fyp','foryou','foryoupage','foryourpage','fy','fypage','fypシ','xyzbca','xyzabc','viral','trending','trend',
+  'funny','cute','lol','lmao','comedy','meme','memes','cringe','wholesome','satisfying','oddlysatisfying',
+  'asmr','relatable','mood','vibes','aesthetic','prank','challenge','dance','dancechallenge','duet','stitch',
+  'tiktok','tiktokmademebuyit','storytime','pov','edit','edits','capcut','explore','explorepage',
+  'funnyvideos','comedyvideos','couplegoals','lifehack','hack','hacks','diy','food','foodie','cooking',
+  'recipe','beauty','makeup','skincare','fashion','ootd','style','fitness','workout','gym','motivation',
+  'inspiration','love','sad','happy','cry','crying','laugh','laughing','wow','omg','wtf','fail','fails',
+  'win','wins','epic','amazing','cool','awesome','best','top','top10','tips','tricks','howto','tutorial',
+  'review','unboxing','shopping','sale','deal','ad','sponsored','collab','giveaway','subscribe','follow',
+  'followforfollow','like4like','comment','share','save','trend2024','trend2025','trend2026'
+]);
+
+function computeHashtagCounts(){
+  const counts = new Map();
+  ALL.filter(matchesTypeOnly).forEach(entry=>{
+    entry.hashtags.forEach(tagRaw=>{
+      const tag = tagRaw.replace('#','').toLowerCase();
+      if(!tag || GENERIC_HASHTAGS.has(tag)) return;
+      counts.set(tag, (counts.get(tag) || 0) + 1);
+    });
+  });
+  return [...counts.entries()]
+    .filter(([,count])=>count >= 2)
+    .sort((a,b)=>b[1]-a[1]);
+}
+
+function pickHashtag(tag){
+  document.getElementById('hashtag').value = tag;
+  currentView = 'grid';
+  document.querySelectorAll('.chip[data-view]').forEach(c=>c.classList.toggle('active', c.dataset.view === 'grid'));
+  render();
+}
+
+function render(){
+  const results = document.getElementById('results');
+  const stats = document.getElementById('stats');
+
+  if(ALL.length === 0){
+    results.innerHTML = `<div class="empty"><p class="big">Nothing imported yet</p><p>Click "Import JSON" and select your TikTok data export, or load sample data to preview how this works.</p></div>`;
+    stats.textContent = 'No data loaded yet.';
+    return;
+  }
+
+  if(currentView === 'hashtags'){
+    renderHashtagBrowser(results, stats);
+    return;
+  }
+
+  const filtered = ALL.filter(matches);
+  const sortField = document.getElementById('sortBy').value === 'posted' ? 'postedDateEffective' : 'date';
+  const order = document.getElementById('order').value;
+
+  filtered.forEach(e=>{ e.postedDateEffective = e.postedDate || e.date; });
+
+  const groups = new Map();
+  filtered.forEach(e=>{
+    const val = sortField === 'date' ? e.date : e.postedDateEffective;
+    const key = monthKey(val);
+    if(!groups.has(key)) groups.set(key, {items:[], sortVal: monthSortVal(val)});
+    groups.get(key).items.push(e);
+  });
+
+  let monthKeys = [...groups.keys()];
+  monthKeys.sort((a,b)=>{
+    const diff = groups.get(a).sortVal - groups.get(b).sortVal;
+    return order === 'asc' ? diff : -diff;
+  });
+
+  const repostCount = ALL.filter(e=>e.types.includes('repost')).length;
+  const favCount = ALL.filter(e=>e.types.includes('favorite')).length;
+  const bothCount = ALL.filter(e=>e.types.includes('repost') && e.types.includes('favorite')).length;
+  stats.innerHTML = `<b>${ALL.length.toLocaleString()}</b> total &middot; <b>${repostCount.toLocaleString()}</b> reposts &middot; <b>${favCount.toLocaleString()}</b> favorites &middot; <b>${bothCount.toLocaleString()}</b> both<br>showing <b>${filtered.length.toLocaleString()}</b>`;
+
+  results.innerHTML = '';
+  monthKeys.forEach(mk=>{
+    const group = groups.get(mk);
+    group.items.sort((a,b)=>{
+      const diff = monthSortVal(sortField==='date'?a.date:a.postedDateEffective) - monthSortVal(sortField==='date'?b.date:b.postedDateEffective);
+      return order === 'asc' ? diff : -diff;
+    });
+
+    const monthDiv = document.createElement('div');
+    monthDiv.className = 'month';
+    const pageKey = mk;
+    if(!(pageKey in monthPage)) monthPage[pageKey] = PAGE_SIZE;
+
+    // Auto-expand by default only when the total result set is small enough
+    // that building everything at once won't hurt performance/memory.
+    const shouldAutoOpen = filtered.length <= 500;
+    if(shouldAutoOpen) monthDiv.classList.add('open');
+
+    monthDiv.innerHTML = `
+      <div class="month-head">
+        <span class="month-title"><span class="chev">&#9656;</span>${mk}</span>
+        <span class="month-meta">${group.items.length.toLocaleString()} video${group.items.length===1?'':'s'}</span>
+      </div>
+      <div class="month-body"></div>
+    `;
+    const body = monthDiv.querySelector('.month-body');
+    let built = false;
+
+    function buildBody(){
+      if(built) return;
+      built = true;
+      const shown = group.items.slice(0, monthPage[pageKey]);
+      const linkedCards = [];
+      if(currentView === 'grid'){
+        const grid = document.createElement('div');
+        grid.className = 'card-grid';
+        shown.forEach(entry=>{
+          const card = renderCard(entry);
+          grid.appendChild(card);
+          if(entry.link) linkedCards.push({entry, card});
+        });
+        body.appendChild(grid);
+      } else {
+        shown.forEach(entry=>body.appendChild(renderRow(entry)));
+      }
+
+      if(group.items.length > monthPage[pageKey]){
+        const more = document.createElement('div');
+        more.className = 'show-more';
+        const remaining = group.items.length - monthPage[pageKey];
+        more.innerHTML = `<button>Show ${Math.min(remaining, PAGE_SIZE).toLocaleString()} more</button>`;
+        more.querySelector('button').addEventListener('click', ()=>{
+          monthPage[pageKey] += PAGE_SIZE;
+          built = false;
+          body.innerHTML = '';
+          buildBody();
+        });
+        body.appendChild(more);
+      }
+
+      // Auto-load every thumbnail in this month right away (no more waiting
+      // for scroll). Priority-insert so this jumps ahead of any leftover
+      // backlog from other months. Once all of them have settled, automatically
+      // continue to the next month below — but only if the person already
+      // opened it, and only if it's small enough (under 850 videos).
+      if(currentView === 'grid'){
+        let remaining = linkedCards.length;
+        const checkDone = ()=>{ if(remaining <= 0) tryChainNextMonth(monthDiv); };
+        if(remaining === 0){
+          checkDone();
+        } else {
+          linkedCards.forEach(({entry, card})=>{
+            queueThumbnail(entry, card, ()=>{ remaining--; checkDone(); }, monthDiv, true);
+          });
+        }
+      }
+    }
+
+    monthDiv._build = buildBody;
+    monthDiv._itemCount = group.items.length;
+
+    if(shouldAutoOpen) buildBody();
+
+    monthDiv.querySelector('.month-head').addEventListener('click', ()=>{
+      const opening = !monthDiv.classList.contains('open');
+      monthDiv.classList.toggle('open');
+      if(opening){
+        buildBody(); // no-op if already built
+        resumeMonth(monthDiv);
+      } else {
+        pauseMonth(monthDiv);
+      }
+    });
+
+    results.appendChild(monthDiv);
+  });
+}
+
+function renderHashtagBrowser(results, stats){
+  const counts = computeHashtagCounts();
+  const knownCaptioned = ALL.filter(e=>e.hashtags.length > 0).length;
+  stats.innerHTML = `<b>${counts.length.toLocaleString()}</b> hashtags found &middot; based on <b>${knownCaptioned.toLocaleString()}</b> videos with captions loaded so far`;
+
+  if(counts.length === 0){
+    results.innerHTML = `<div class="empty"><p class="big">No hashtags yet</p><p>Hashtags come from video captions, which only load once a thumbnail has loaded. Open a few months in "Thumbnails" view first, then come back here.</p></div>`;
+    return;
+  }
+
+  const max = counts[0][1];
+  const chips = counts.map(([tag, count])=>{
+    const size = 12 + Math.round((count / max) * 10); // 12px-22px, scaled by popularity
+    return `<span class="hashtag-chip" data-tag="${esc(tag)}" style="font-size:${size}px">#${esc(tag)} <span class="hashtag-count">${count.toLocaleString()}</span></span>`;
+  }).join('');
+
+  results.innerHTML = `
+    <p style="color:var(--ink-faint); font-size:11px; margin:0 0 16px;">
+      Fandom / interest hashtags only, generic tags like #funny or #fyp are excluded. Tap one to see those videos grouped by month. Sorted by most used first.
+    </p>
+    <div class="hashtag-cloud">${chips}</div>
+  `;
+
+  results.querySelectorAll('.hashtag-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>pickHashtag(chip.dataset.tag));
+  });
+}
+
+function renderRow(entry){
+  const row = document.createElement('div');
+  row.className = 'row';
+  const dateLabel = entry.date ? new Date(entry.date).toLocaleDateString() : '—';
+  const badges = entry.types.map(t=>`<span class="badge ${t}">${t}</span>`).join('');
+  const tagsHtml = entry.hashtags.length ? `<div class="row-tags">${entry.hashtags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>` : '';
+  const captionHtml = entry.caption ? esc(entry.caption) : '<span style="color:var(--ink-faint)">No caption available in export</span>';
+  row.innerHTML = `
+    <div class="row-date">${dateLabel}</div>
+    <div class="row-main">
+      <div class="row-caption">${captionHtml}</div>
+      ${tagsHtml}
+      ${entry.link ? `<div class="row-link"><a href="${esc(entry.link)}" target="_blank" rel="noopener">${esc(entry.link)}</a></div>` : ''}
+    </div>
+    <div class="badges">${badges}</div>
+  `;
+  return row;
+}
+
+function renderCard(entry){
+  const card = document.createElement('div');
+  card.className = 'card';
+  card._entry = entry;
+
+  const badges = entry.types.map(t=>`<span class="badge ${t}">${t}</span>`).join('');
+  const captionText = entry.caption ? esc(entry.caption) : '';
+
+  card.innerHTML = `
+    <div class="card-badges">${badges}</div>
+    ${entry.link ? `<a class="open-link" href="${esc(entry.link)}" target="_blank" rel="noopener" title="Open on TikTok" onclick="event.stopPropagation()">&#8599;</a>` : ''}
+    <div class="placeholder"><div class="spinner"></div></div>
+    <div class="overlay"><div class="cap">${captionText}</div></div>
+  `;
+
+  card.addEventListener('click', ()=>{
+    if(card.classList.contains('playing')) return;
+    if(card.dataset.status === 'error'){
+      oembedCache.delete(entry.link);
+      card.dataset.status = 'pending';
+      const ph = card.querySelector('.placeholder');
+      if(ph) ph.innerHTML = '<div class="spinner"></div>';
+      queueThumbnail(entry, card);
+      return;
+    }
+    playInline(card, entry);
+  });
+
+  return card;
+}
+
+// ---------------- FEED ("For You") ----------------
+let feedItems = [];
+let feedRenderedCount = 0;
+const FEED_BATCH = 6;
+let feedObserver = null;
+let feedActiveSlide = null;
+
+function switchToFeed(){
+  document.getElementById('libraryView').style.display = 'none';
+  document.getElementById('navLibrary').classList.remove('active');
+  document.getElementById('navFeed').classList.add('active');
+  const container = document.getElementById('feedContainer');
+  container.style.display = 'block';
+  if(container.childElementCount === 0){
+    feedItems = buildFeedItemList();
+    if(feedItems.length === 0){
+      container.innerHTML = '<div style="height:100vh;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-family:\'Space Mono\',monospace;font-size:13px;text-align:center;padding:24px;">No videos to show yet.<br>Import your data (or adjust filters) in Library first.</div>';
+      return;
+    }
+    feedRenderedCount = 0;
+    feedObserver = new IntersectionObserver(handleFeedIntersect, {root: container, threshold: [0.6]});
+    appendFeedBatch();
+  }
+}
+
+function switchToLibrary(){
+  document.getElementById('feedContainer').style.display = 'none';
+  document.getElementById('navFeed').classList.remove('active');
+  document.getElementById('navLibrary').classList.add('active');
+  document.getElementById('libraryView').style.display = '';
+  if(feedActiveSlide) deactivateFeedSlide(feedActiveSlide);
+}
+
+function buildFeedItemList(){
+  const filtered = ALL.filter(matches).filter(e=>e.link);
+  const sortField = document.getElementById('sortBy').value === 'posted' ? 'postedDateEffective' : 'date';
+  const order = document.getElementById('order').value;
+  filtered.forEach(e=>{ e.postedDateEffective = e.postedDate || e.date; });
+  filtered.sort((a,b)=>{
+    const diff = monthSortVal(sortField==='date'?a.date:a.postedDateEffective) - monthSortVal(sortField==='date'?b.date:b.postedDateEffective);
+    return order === 'asc' ? diff : -diff;
+  });
+  return filtered;
+}
+
+function appendFeedBatch(){
+  const container = document.getElementById('feedContainer');
+  const end = Math.min(feedRenderedCount + FEED_BATCH, feedItems.length);
+  for(let i=feedRenderedCount; i<end; i++){
+    const slide = renderFeedSlide(feedItems[i], i);
+    container.appendChild(slide);
+    feedObserver.observe(slide);
+  }
+  feedRenderedCount = end;
+}
+
+function renderFeedSlide(entry, idx){
+  const slide = document.createElement('div');
+  slide.className = 'feed-slide';
+  slide.dataset.index = idx;
+  slide._entry = entry;
+  const badges = entry.types.map(t=>`<span class="badge ${t}">${t}</span>`).join('');
+  const captionText = entry.caption ? esc(entry.caption) : '';
+  slide.innerHTML = `
+    <div class="feed-media"><div class="feed-placeholder"><div class="spinner"></div><span>Loading...</span></div></div>
+    <div class="feed-overlay">
+      <div class="feed-badges">${badges}</div>
+      ${captionText ? `<div class="feed-caption">${captionText}</div>` : ''}
+      <a class="feed-open" href="${esc(entry.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open on TikTok &#8599;</a>
+    </div>
+  `;
+  return slide;
+}
+
+function handleFeedIntersect(entries){
+  entries.forEach(obs=>{
+    const slide = obs.target;
+    const idx = parseInt(slide.dataset.index, 10);
+    if(obs.isIntersecting && obs.intersectionRatio >= 0.6){
+      activateFeedSlide(slide);
+      if(idx >= feedRenderedCount - 3) appendFeedBatch();
+    } else {
+      deactivateFeedSlide(slide);
+    }
+  });
+}
+
+function activateFeedSlide(slide){
+  if(feedActiveSlide && feedActiveSlide !== slide) deactivateFeedSlide(feedActiveSlide);
+  feedActiveSlide = slide;
+  if(slide.dataset.loaded === 'true') return;
+  slide.dataset.loaded = 'true';
+  const entry = slide._entry;
+  const media = slide.querySelector('.feed-media');
+
+  const cached = oembedCache.get(entry.link);
+  if(cached && cached.status === 'done'){
+    mountFeedEmbed(media, cached.data);
+    return;
+  }
+
+  fetchOembedWithFallback(entry.link).then(data=>{
+    oembedCache.set(entry.link, {status:'done', data});
+    netStats.success++;
+    if(data.title && !entry.caption){
+      entry.caption = data.title;
+      const overlay = slide.querySelector('.feed-overlay');
+      if(overlay && !overlay.querySelector('.feed-caption')){
+        const div = document.createElement('div');
+        div.className = 'feed-caption';
+        div.textContent = data.title;
+        overlay.insertBefore(div, overlay.querySelector('.feed-open'));
+      }
+    }
+    if(!entry.author){
+      entry.author = extractUsername(data.author_url) || (data.author_name ? data.author_name.toLowerCase().replace(/^@/,'') : null);
+    }
+    if(slide === feedActiveSlide) mountFeedEmbed(media, data);
+  }).catch(()=>{
+    oembedCache.set(entry.link, {status:'error'});
+    netStats.fail++;
+    if(slide === feedActiveSlide){
+      media.innerHTML = '<div class="feed-placeholder"><span>Couldn\'t load this one.</span><span>Tap "Open on TikTok" below.</span></div>';
+    }
+  });
+}
+
+function mountFeedEmbed(media, data){
+  media.innerHTML = '';
+  if(data.thumbnail_url){
+    const bg = document.createElement('img');
+    bg.src = data.thumbnail_url;
+    media.appendChild(bg);
+  }
+  if(data.html){
+    // Show TikTok's embed as they intend it — their engagement icons and
+    // branding are part of what their embed terms require staying visible.
+    // Our own design lives in everything around this: the feed itself, the
+    // captions, badges, and browsing experience.
+    const wrap = document.createElement('div');
+    wrap.className = 'tiktok-embed-wrap';
+    wrap.innerHTML = data.html;
+    media.appendChild(wrap);
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.tiktok.com/embed.js';
+    document.body.appendChild(s);
+  }
+}
+
+function deactivateFeedSlide(slide){
+  if(!slide) return;
+  slide.dataset.loaded = 'false';
+  const entry = slide._entry;
+  const media = slide.querySelector('.feed-media');
+  if(media){
+    const cached = oembedCache.get(entry.link);
+    media.innerHTML = '';
+    if(cached && cached.status === 'done' && cached.data.thumbnail_url){
+      const bg = document.createElement('img');
+      bg.src = cached.data.thumbnail_url;
+      media.appendChild(bg);
+    } else {
+      media.innerHTML = '<div class="feed-placeholder"><div class="spinner"></div></div>';
+    }
+  }
+  if(feedActiveSlide === slide) feedActiveSlide = null;
+}
+
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function expandAll(){
+  const months = document.querySelectorAll('.month');
+  const totalShown = [...months].reduce((sum, m)=>sum + (m._itemCount || 0), 0);
+  if(totalShown > 3000){
+    const ok = confirm('This will build ' + totalShown.toLocaleString() + ' video cards at once, which may slow down or crash the page on a phone. Continue anyway?');
+    if(!ok) return;
+  }
+  months.forEach(m=>{
+    m.classList.add('open');
+    if(m._build) m._build();
+  });
+}
+function collapseAll(){document.querySelectorAll('.month').forEach(m=>m.classList.remove('open'));}
+
+render();
+</script>
+</body>
+</html>
